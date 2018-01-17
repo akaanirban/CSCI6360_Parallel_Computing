@@ -1,0 +1,46 @@
+\documentclass[a4paper,12 pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper, margin=0.8in}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{kbordermatrix}
+\usepackage{enumitem}
+\setlist{  
+  listparindent=\parindent,
+  parsep=0pt,
+}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage[normalem]{ulem}
+
+
+\title{CSCI 6360: Parallel Computing Lecture Summary - 1}
+\author{Anirban Das (dasa2@rpi.edu) }
+\date{January 16, 2018}
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\begin{document}
+\maketitle
+
+\paragraph{"Modeling \& Simulation behind Improving Everyday Life " by Tom Lange from P\&G\\}
+
+In this talk, Thomas Lange briefly presents the fascinating prospect, necessity and applications of Modeling and Simulations on high performance computers, that goes into the design and development of even the everyday so called 'low tech' products of P\&G.
+
+He starts with several anecdotes to an introduction to the company's long standing history of improving their products with research and development in background. On stressing the fact that even creating everyday 'low tech' things needs science and engineering, he puts forward several reasons to back his claim.
+
+I felt that the most important reason is the 'contradictions'. For e.g. how toilet papers must be strong yet soft, packages must be strong but light, leak proof yet easy to open, formulations be concentrated yet not too viscous etc. These are conflicting engineering and design problems. For sustainable development of the company a product cannot be tested once its out in the market, if it fails its a disaster. Hence modelling and simulation comes into play.
+
+P\&G as Lange elaborates, uses modeling and simulation pipeline for the entire business process model starting the simulations of the atoms of the product/materials, how they will be handled by the users to how the products will be manufactured in the assembly line or factory. All these simulations need to be run on high performance computers parallelly on thousands of cores.
+
+Lange gives extensive examples. He starts with computational chemistry DPD simulations of the detergents activity on the dirt molecules and how the self organising molecules act in body wash non-Newtonian liquid formations. They can model and simulate for example, how fluid flow occurs in a baby diaper, how to mix a now newtonian toothpaste in the factory mixers etc. in the HPC systems with reasonable accuracy thus saving huge infrastructure cost of actual physical experiments. Moreover, this allows them to make design decision and changes even before the prototype is made and much before the infrastructure is commissioned.
+
+Lange talks about physics based modeling. One interesting example was the design flaw in Tide detergent bottle which cracked on fall, due to the Tide label on the front. By simulation it is possible to find out the stress patterns by finite element analysis. P\&G even models the human interaction with the products, for example there are 4 main grips to open a bottle cap and it is possible to simulate the human hand joints and ball socket movements, surface pressures and the forces applied on the caps. An ideal cap would be easy to open yet spill proof, again a contradiction!
+
+For a company which spends 2Billion \$ on R\&D, P\&G according to Lange , wants the ability to tune their modeling and simulation capability to such high fidelity to almost eliminate the testing required on actual test products. This I felt is a little far fetched. Because after all these are  consumer products which consumers will use physically and the in sample error of the simulations can never ever match the out of sample error in the actual mass unless we use test subjects/experiments.
+
+\end{document}
