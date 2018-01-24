@@ -1,0 +1,56 @@
+\documentclass[a4paper,12 pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper, margin=0.8in}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{kbordermatrix}
+\usepackage{enumitem}
+\setlist{  
+  listparindent=\parindent,
+  parsep=0pt,
+}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage[normalem]{ulem}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{listings}
+
+
+\title{\vspace{-2.0cm}CSCI 6360: Parallel Computing Lecture Summary - 2}
+\author{Anirban Das (dasa2@rpi.edu) }
+\date{January 19, 2018}
+
+
+\begin{document}
+\maketitle
+
+\paragraph{Linux and C Programming Language features/ commands we will use in 1st assignment\\}
+First lets focus on Linux. At the beginning we would need a text based editor to develop the C code. I tend to SublimeText to do that (though some people might prefer the almighty 'vi' editor). Once the code is developed we can use the gcc compiler in Ubuntu to compile our code as follows \texttt{gcc -Wall -o assign1 assign1.c}, where we are instructing the compiler to compile 'assign1.c' file to executable named 'assign1'. We can then execute it with the command \texttt{./assign1}. We can also choose to pass command line arguments to the program if necessary in the following format \texttt{./assign1 arg1 arg2}$\cdots$.
+
+To access the files and create the directories for the assignment we may use the following linux commands \texttt{ls} to show files in a folder, \texttt{cd} to change directory, \texttt{mkdir} to create a directory, \texttt{cp} to cpoy a file/folder to a location, \texttt{pwd} to display present working directory, \texttt{rm} to remove a file ,\texttt{touch}to create a file etc. To make use of relative folder references, we might use './' to denote current and '../' to denote the parent folder. To log into the class server, we might use Putty if we are in windows and set the ssh hostname to 'kratos.cs.rpi.edu' and port no to '22' and then connect, where the user ID and passowrd will be the RPI userid and password. We can also securely login through the ssh from Ubuntu terminal directly. 
+
+In order to securely copy the assignment files from local desktop to the class development server 'kratos.cs.rpi.edu' we need to use the \texttt{scp} command, more specifically something like\\
+ \texttt{scp anirban@123.1.1.1:/home/anirban/assign1.c dasa2@kratos.cs.rpi.edu:/home/anir-}\\ \texttt{ban/assign1.c} we I am transferring the assign1.c file from the folder '/home/anirban/' from my computer '123.1.1.1' securely using \textbf{scp} protocol to the folder '/home/anirban/' of 'kratos.cs.rpi.edu'.
+ 
+In order to develop the code related to the assignment 1, the following C commands might come handy, \texttt{printf} to print something on \texttt{stdout} mainly, \texttt{scanf} to read some input from the user, \texttt{return} statement to return from a function. We may need to use \texttt{int}, \texttt{char}, \texttt{float} etc to declare integer, character, float etc. type of variables. We might need to use 'for' and 'while' loops and may need to define functions as subroutines, which will then perform the submodule specific works of the assignment. For this assignment we will not be using dynamic memory allocation according to instructions, however we might use pointers. We will need to use some math operators such as '+', '-', '/' etc. We can include a math library by telling the gcc the following : \texttt{gcc  -o assign1 assign1.c -lm} where the last '-lm' means "add in the math library". We will need to use keywords 'void' or 'int' etc to denote return types of the functions. Also for control structures we will use \texttt{if}, \texttt{else} etc. We would also need the preprocessor directives \texttt{\#include}, \texttt{\#define} etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
