@@ -11,4 +11,14 @@ stdio.h
 -
 string.h
 -
+stdlib.h
+-
+
+D:/GitHub/CSCI6360_Parallel_Computing/Assignments/Assignment1/test.c
+stdio.h
+-
+string.h
+-
+stdlib.h
+-
 

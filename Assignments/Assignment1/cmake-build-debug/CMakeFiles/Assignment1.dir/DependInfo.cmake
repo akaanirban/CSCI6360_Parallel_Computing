@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
   "D:/GitHub/CSCI6360_Parallel_Computing/Assignments/Assignment1/main.c" "D:/GitHub/CSCI6360_Parallel_Computing/Assignments/Assignment1/cmake-build-debug/CMakeFiles/Assignment1.dir/main.c.obj"
+  "D:/GitHub/CSCI6360_Parallel_Computing/Assignments/Assignment1/test.c" "D:/GitHub/CSCI6360_Parallel_Computing/Assignments/Assignment1/cmake-build-debug/CMakeFiles/Assignment1.dir/test.c.obj"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

@@ -3,3 +3,5 @@
 
 CMakeFiles/Assignment1.dir/main.c.obj: ../main.c
 
+CMakeFiles/Assignment1.dir/test.c.obj: ../test.c
+
