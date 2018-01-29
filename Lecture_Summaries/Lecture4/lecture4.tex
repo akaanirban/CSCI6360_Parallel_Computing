@@ -1,0 +1,50 @@
+\documentclass[a4paper,12 pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper, margin=0.8in}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{kbordermatrix}
+\usepackage{enumitem}
+\setlist{  
+  listparindent=\parindent,
+  parsep=0pt,
+}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage[normalem]{ulem}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{listings}
+
+
+\title{\vspace{-2.0cm}CSCI 6360: Parallel Computing Lecture Summary - 4}
+\author{Anirban Das (dasa2@rpi.edu) }
+\date{January 26, 2018}
+
+
+\begin{document}
+\maketitle
+
+\paragraph{Explanation of the Master-Worker implementation of Matrix Multiplication using MPI\_send/ MPI\_recv function pair and the factors limiting its performance\\\\}
+
+This code implements a parallel way of matrix multiplication using MPI and master-slave (worker) architecture. There is a single master MPI process, denoted by \texttt{taskid == 0}. Workers are denoted by \texttt{taskid > 0}. The same program contains code block for the master and workers, since the same program is replicated in all the nodes, and the code blocks are executed based on conditional checking on \texttt{taskid}. 
+
+After initializing the MPI environment and setting the necessary \texttt{comm} variables, the \textbf{MASTER} has the job of diving the matrix data into chunks and sending them to \textbf{WORKERS} for execution. The dimensions of matrix A, B, C are already defined as \texttt{NRA, NCA, NCB}. The \textbf{MASTER} knows the number of workers from the value of \texttt{numworkers}. It distributes the number of rows of \texttt{a} more or less equally among all the workers, as the following: first uses \texttt{MPI\_Send} to send the \texttt{offset}, number of rows `rows` and the actual rows from matrix \texttt{a} and the whole \texttt{b} matrix to current worker, then updates the offset, moves on to the next worker. It then waits for the result from all the workers using \texttt{MPI\_Recv}. This is a blocking communication, and the \textbf{MASTER} waits until receive from all \textbf{WORKERS} is complete. Then it reconstructs and prints the result.
+
+The \textbf{WORKERS} receives their chunk of rows of \texttt{a} matrix, and \texttt{b} from the \textbf{MASTER} using \texttt{MPI\_Recv}. It then performs the multiplication and send the corresponding rows of the \texttt{c} matrix to the \textbf{MASTER}.
+
+The workflow between \textbf{MASTER-WORKER} can be thought of a SIMD paradigm where all \textbf{WORKER} nodes received same set of instructions but performing on different sets of data. \\
+
+\textbf{Factors limiting the code's performance:}
+\begin{enumerate}
+\item The \texttt{MPI\_Send}, \texttt{MPI\_Recv} are blocking calls, hence there is always a potential for deadlock.
+\item The master sends out the chunks of data in sequential order, and since the \texttt{MPI\_Send} is blocking, the master will not proceed to send data to next worker unless the current one finishes. This by default causes the other nodes to sit idle, wasting CPU cycles, moreover the situation worsens if the send functions require a long time to finish.
+\item Different workers will finish their computation in different wall clock time, but the master is waiting for them in a sequential order, might cause a huge delay. For example, if worker with \texttt{taskid=1} finishes the last, then the whole computation is delayed the most.
+\item The master node just partitions the data on the worker node, then sits idle, without assisting computation. Depending on the system, even one more node helping in the computation might decrease latency.
+\item No fault tolerance, if any 'node' goes corrupt, the result is fallacious.
+\end{enumerate}
+\end{document}

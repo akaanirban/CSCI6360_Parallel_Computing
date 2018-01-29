@@ -1,4 +1,0 @@
-"C:\Program Files\JetBrains\CLion 2017.2.2\bin\cmake\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" D:\GitHub\CSCI6360_Parallel_Computing\Assignments\Assignment1
--- Configuring done
--- Generating done
--- Build files have been written to: D:/GitHub/CSCI6360_Parallel_Computing/Assignments/Assignment1/cmake-build-debug
