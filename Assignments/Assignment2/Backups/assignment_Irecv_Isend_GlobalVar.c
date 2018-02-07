@@ -15,7 +15,6 @@
 #include <math.h>
 
 #define BLKSIZE 4
-#define MSGSIZE 256
 int          taskid, ntasks;
 MPI_Status   status;
 MPI_Request send_request,recv_request;
@@ -64,8 +63,8 @@ void simple_adder(char *first_num, char *second_num, unsigned int *gi, unsigned 
 /* MAIN FUNCTION */
 int main(int argc , char **argv) {
 
-    char         *first_num; /* the first 64digit hex number      */
-    char         *second_num; /* the second 64digit hex number    */
+    char         first_num[130]; /* the first 64digit hex number      */
+    char         second_num[130]; /* the second 64digit hex number    */
     char         converted_hex[65]; /* the result 64digit hex number */
     //int          taskid, ntasks;
     unsigned long chunks;
@@ -83,7 +82,7 @@ int main(int argc , char **argv) {
 	MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
 	MPI_Comm_size(MPI_COMM_WORLD,&ntasks);
 
-    chunks = MSGSIZE*4/ntasks;
+    chunks = 512/ntasks;
     char *binary_first_num; /*variable for binary version of 1st number*/
     char *binary_second_num; /*variable for binary version of 2nd number*/
     char *sub_first_num;
@@ -94,28 +93,25 @@ int main(int argc , char **argv) {
 	/*========================================================================*/
 	/*code for rank zero											          */
 	if ( taskid == 0 ){
-    	printf("\n\n\n");
-    	printf("##########################################################\n\n");
-    	printf(" no. of chunks : %lu\n",chunks);
-    	printf(" Number of tasks: %d\n\n",ntasks);
-    	printf("##########################################################\n\n");
+	printf("\n\n\n");
+	printf("##########################################################\n\n");
+	printf(" no. of chunks : %lu\n",chunks);
+	printf(" Number of tasks: %d\n\n",ntasks);
+	printf("##########################################################\n\n");
 
-        /*read the two numbers from input redirected file                         */
-        first_num = (char *)malloc((MSGSIZE+2)*sizeof(char));
-        second_num = (char *)malloc((MSGSIZE+2)*sizeof(char));
-        read_numbers( first_num, second_num);
-        printf("1st num %s\n",first_num );
-        printf("2nd num %s\n",second_num );
+    /*read the two numbers from input redirected file                         */
+    read_numbers( first_num, second_num);
+    printf("1st num %s\n",first_num );
+    printf("2nd num %s\n",second_num );
+    
+    binary_first_num = (char *)malloc((512+1)*sizeof(char));
+    binary_second_num = (char *)malloc((512+1)*sizeof(char));
         
-        binary_first_num = (char *)malloc((MSGSIZE*4+1)*sizeof(char));
-        binary_second_num = (char *)malloc((MSGSIZE*4+1)*sizeof(char));
-            
-        /*convert the hex numbers to binary*/
-        hex_to_bin(first_num, binary_first_num);
-        hex_to_bin(second_num, binary_second_num);
-    }
+    /*convert the hex numbers to binary*/
+    hex_to_bin(first_num, binary_first_num);
+    hex_to_bin(second_num, binary_second_num);
 
-    /*scatter the data from the rank 0 node */
+    }
     MPI_Scatter(binary_first_num,
                 chunks,
                 MPI_CHAR,
@@ -125,7 +121,7 @@ int main(int argc , char **argv) {
                 0,
                 MPI_COMM_WORLD);
     sub_first_num[chunks] = '\0';
-    //printf("1st number from %d is : %s\n",taskid, sub_first_num );
+    printf("1st number from %d is : %s\n",taskid, sub_first_num );
     MPI_Scatter(binary_second_num,
                 chunks,
                 MPI_CHAR,
@@ -150,7 +146,7 @@ int main(int argc , char **argv) {
     }
     //ierr=MPI_Wait(&recv_request,&status);
 
-    cla(sub_first_num, sub_second_num, converted_hex, chunks*4, &sssCarry);
+    cla(sub_first_num, sub_second_num, converted_hex, chunks, &sssCarry);
     printf("the received value by %d ---> %d\n",taskid, sssCarry);
 
 
@@ -169,8 +165,8 @@ int main(int argc , char **argv) {
     free(sub_first_num);
     free(sub_second_num);
     if(taskid ==0){
-        free(first_num); free(second_num);
-        free(binary_first_num); free(binary_second_num);    
+        free(binary_first_num);
+        free(binary_second_num);    
     }
     MPI_Finalize();
     return 0;
@@ -236,7 +232,7 @@ void cla(char *binary_first_num, char *binary_second_num,
     /*calculate super section generate propagate*/
     super_section_gen_prop(sgk, spk, ssgl, sspl);
     /*calculate super super section generate propagate*/
-    super_super_section_gen_prop(ssgl, sspl, sssgm, ssspm);
+    super_section_gen_prop(ssgl, sspl, sssgm, ssspm);
 
     /*calculate super super section carry*/
     super_super_section_carry(sssgm, ssspm, ssscm);
@@ -272,11 +268,11 @@ void cla(char *binary_first_num, char *binary_second_num,
 void read_numbers(char *first_num, char *second_num){
     //printf("Please enter 1st hex number:");
     //scanf("%s", first_num); 
-    fgets(first_num, MSGSIZE+2, stdin); /* read 1st number */
+    fgets(first_num, 130, stdin); /* read 1st number */
     first_num[strcspn(first_num, "\n")]=0;
     //printf("Please enter 2nd hex number:");
     //scanf("%s", second_num);
-    fgets(second_num, MSGSIZE+2, stdin); /* read 2nd number */
+    fgets(second_num, 130, stdin); /* read 2nd number */
     second_num[strcspn(second_num, "\n")]=0;
     //printf("1st num %s and second num %s", first_num, second_num);
 }
@@ -514,7 +510,6 @@ void super_super_section_gen_prop(unsigned int *ssgl, unsigned int *sspl, unsign
         ssspm[m] = sspl[l+3]&sspl[l+2]&sspl[l+1]&sspl[l];
         m = m+1;
     }    
-    printf("--------------------------\n");
 }
 
 /*calculate super super section carry*/
@@ -531,7 +526,7 @@ void super_super_section_carry(unsigned int *sssgm, unsigned int *ssspm, unsigne
             ssscm[m+ct] = sssgm[m+ct] | (ssspm[m+ct] & ssscm[m+ct-1]); 
         } 
     }
-    printf("sefdfsdfdgdsgsdgsdgsdgsdgsdgsdgs ---- %d  %d  %d %d\n", ssscm[0], ssscm[1], ssscm[2], ssscm[0]);
+    printf("sefdfsdfdgdsgsdgsdgsdgsdgsdgsdgs\n");
 }
 
 /*calculate super section carry*/
