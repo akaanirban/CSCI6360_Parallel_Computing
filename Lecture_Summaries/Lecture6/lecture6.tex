@@ -1,0 +1,46 @@
+\documentclass[a4paper,12 pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper, margin=0.8in}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\setlist{  
+  listparindent=\parindent,
+  parsep=0pt,
+}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage[normalem]{ulem}
+\usepackage{natbib}
+\usepackage{listings}
+
+
+\title{\vspace{-2.0cm}CSCI 6360: Parallel Computing Lecture Summary - 6}
+\author{Anirban Das (dasa2@rpi.edu) }
+\date{February 2, 2018}
+
+
+\begin{document}
+\maketitle
+
+\paragraph{Summary of comparison between the Blue Gene /L, /P and /Q systems\\\\}
+
+Blue Gene project is IBMs take at designing and building supercomputers with the motto of high performance to power ratio. To this date, there have been 3 generations of Blue Gene supercomputers BG /L, /P and /Q, in chronological order. Since their advent, the Blue Gene family of supercomputers has been among the most successful supercomputers both in raw power as well as energy efficiency, with lots of presence in the TOP500 list of supercomputers.
+
+BG/L , BG/P and BG/Q were unveiled at around 2004, 2007 and early 2012 respectively. Architecture wise, BG/L is the least powerful with 5.7TF per rack, with BG/P at 13.9TF per rack and BG/Q with massive 209TF per rack. BG/L started with 135nm scale ASICs whereas BG/L and BG/Q were unveiled with 90mm and 45nm ASIcs respectively. Each BG/L compute chip contained two PowerPC440 processor core running at 700Mhz. BG/L ran at slightly higher per processor speed at quad core 850Mhz PowerPC450. However the BG/Q ran on a substantially large 16(+2)core/64 thread A2 processor clocked at 1.6Ghz. A major change in processor architecture of BG/Q is that there exists a dedicated core for the OS apart from the 16 cores, along with a spare fallback core as well.
+
+Memory wise, BG/L has 512MB/Node, while BG/L has 2/4GB /Node and they upgraded per node node memory to 16GB in BG/Q. Thus per node memory available is the maximum in BG/Q among the three. Earlier /P, /L systems, had limited scalability, appx. 128 racks. But with BG/Q, IBM aimed at Exascale computing with extreme scalability $>$ 256 racks. 
+
+BG/L, /P kernel systems were mostly proprietary. However, BG/Q supports Linux/POSIX system calls. Moreover, BG/P and BG/L did not support shared memory programming model, which is supported by the BG/Q system. The compute node OS in BG/L and /P were CNK, whereas futuristic BG/Q supports CNK, Linux as well as Red Hat. Looking in to the network capabilities,  the bisection bandwidth of BG/Q is in order of terabytes, which is enormous w.r.t. the older L and P which were in order of several GB/s. The older models uses slow ethernet whereas Q uses 10Gbit ethernet and infiniband. Also to achieve high throughput the older generations used among other topologies, a 3D torus network. The BG/Q generation however implemented a 5D torus network to increase bandwidth usage efficiency and decrease the latency even during peak perf.
+
+All of BG/P, /L and /Q have been the most power efficient supercomputers of their respective generations with top and high positions in the GREEN500. However, BG/Q is the most efficient with Linpack benchmark of 2.1GF/Watt, where BG/P lies much much below at .37GF/Watt.
+
+Lastly, the BG/L and BG/P racks were noisy air-cooled, however BG/Q has moved into the noiseless and more efficient water-cooled system. 
+
+Though all these generations of supercomputers provided one of the best performance during their times, but as of 2015 IBM has discontinued the Blue Gene systems, to facilitate integration of FPGA, GPU alongside the CPU centric architecture in their future supercomputers. They aim to cater towards tackling both the HPC jobs as well as the deep learning and data mining workloads at the same time with this new generation. 
+
+\end{document}
