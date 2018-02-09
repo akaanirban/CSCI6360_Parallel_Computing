@@ -14,8 +14,8 @@
 #include <mpi.h>
 #include <math.h>
 
-#define BLKSIZE 16
-#define MSGSIZE 262144
+#define BLKSIZE 4
+#define MSGSIZE 256
 int          taskid, ntasks;
 MPI_Status   status;
 MPI_Request  send_request,recv_request;
@@ -23,7 +23,7 @@ unsigned int sssCarry=0;
 
 /*Main CLA routine having all steps*/
 void cla(char *first_num, char *second_num, char *converted_hex,
-         unsigned long chunksize);
+         int chunksize);
 /*Read the two numbers from stdin*/
 void read_numbers(char *first_num, char *second_num);
 
@@ -107,18 +107,15 @@ int main(int argc , char **argv) {
         first_num = (char *)malloc((MSGSIZE+2)*sizeof(char));
         second_num = (char *)malloc((MSGSIZE+2)*sizeof(char));
         read_numbers( first_num, second_num);
-        printf("fffffffff");
-        //printf("1st num %s\n",first_num );
-        //printf("2nd num %s\n",second_num );
+        printf("1st num %s\n",first_num );
+        printf("2nd num %s\n",second_num );
         
         binary_first_num = (char *)malloc((MSGSIZE*4+1)*sizeof(char));
         binary_second_num = (char *)malloc((MSGSIZE*4+1)*sizeof(char));
-        printf("(here)\n");
+            
         /*convert the hex numbers to binary*/
         hex_to_bin(first_num, binary_first_num);
-                printf("\n conversion don1e \n" );
         hex_to_bin(second_num, binary_second_num);
-        printf("\n conversion done \n" );
     }
 
     /*scatter the data from the rank 0 node */
@@ -132,7 +129,6 @@ int main(int argc , char **argv) {
                 MPI_COMM_WORLD);
     sub_first_num[chunksize] = '\0';
     //printf("1st number from %d is : %s\n",taskid, sub_first_num );
-    printf("scatter done 1\n");
     MPI_Scatter(binary_second_num,
                 chunksize,
                 MPI_CHAR,
@@ -142,7 +138,6 @@ int main(int argc , char **argv) {
                 0,
                 MPI_COMM_WORLD);
     sub_second_num[chunksize] = '\0';
-    printf("scatter done 2\n");
     //printf("2nd number from %d is : %s  %d\n",taskid, sub_second_num, strlen(sub_second_num));
 
     /*========================================================================*/
@@ -151,7 +146,6 @@ int main(int argc , char **argv) {
         ierr=MPI_Irecv(&sssCarry,1 ,MPI_UNSIGNED,
                taskid-1,MPI_ANY_TAG,MPI_COMM_WORLD,&recv_request);
     }
-    printf("receive floating...calling cla\n");
     //else{
     //    ierr=MPI_Irecv(&sssCarry,1 ,MPI_UNSIGNED,
     //           ntasks-1,MPI_ANY_TAG,MPI_COMM_WORLD,&recv_request);
@@ -159,14 +153,13 @@ int main(int argc , char **argv) {
     //ierr=MPI_Wait(&recv_request,&status);
     cla(sub_first_num, sub_second_num, converted_hex, chunksize);
     //MPI_Barrier(MPI_COMM_WORLD);
-    printf("outta cla\n");
     char *actualNumber;
     actualNumber = (char *)malloc((MSGSIZE)*sizeof(char));
     ierr=MPI_Gather(converted_hex, MSGSIZE/ntasks ,MPI_CHAR,
                    actualNumber,MSGSIZE/ntasks, MPI_CHAR,
                    0,MPI_COMM_WORLD);
-    printf("gather done 1\n");
-    //printf("the received value by %d ---> %d\n",taskid, sssCarry);
+    
+    printf("the received value by %d ---> %d\n",taskid, sssCarry);
 
 
 
@@ -182,16 +175,15 @@ int main(int argc , char **argv) {
     //cla(first_num, second_num, converted_hex);
     if(taskid ==0){
         reverse_string(actualNumber);
-        //printf("3rd num from %d %s\n",taskid, actualNumber );
-        //printf("%s\n", actualNumber);
+        printf("3rd num from %d %s\n",taskid, actualNumber );
     }
-    //free(sub_first_num);
-    //free(sub_second_num);
-    //free(converted_hex);
-    //free(actualNumber);
+    free(sub_first_num);
+    free(sub_second_num);
+    free(converted_hex);
+    free(actualNumber);
     if(taskid ==0){
-    //    free(first_num); free(second_num);
-     ///   free(binary_first_num); free(binary_second_num);    
+        free(first_num); free(second_num);
+        free(binary_first_num); free(binary_second_num);    
     }
     MPI_Finalize();
     return 0;
@@ -199,8 +191,7 @@ int main(int argc , char **argv) {
 
 /*main routine doing all the CLA steps and return the sum*/ 
 void cla(char *binary_first_num, char *binary_second_num, 
-            char *converted_hex, unsigned long chunksize){
-    printf("%d\n",chunksize );
+            char *converted_hex, int chunksize){
     int i=0; /*dummy value for counting stuff*/
     unsigned int *gi; /*variable for individual generate*/
     gi = (unsigned int *)calloc(chunksize, sizeof(unsigned int));
@@ -242,11 +233,10 @@ void cla(char *binary_first_num, char *binary_second_num,
     unsigned int *actual_sum; /*variable for the generated sum in CORRECT order in BINARY*/
     actual_sum = (unsigned int *)calloc(chunksize, sizeof(unsigned int));
 
-printf("In cla alloctions done\n");
+
     /*calculate individual generate and propagate*/
     single_gen_prop(binary_first_num, binary_second_num, gi, pi);
-    printf("In cla single_gen_prop done\n");
-
+    
     /* simple ripple carry adder code to validate results */
     /* 
     simple_adder(binary_first_num, binary_second_num, gi, pi, ci, sum); 
@@ -254,19 +244,12 @@ printf("In cla alloctions done\n");
     
     /*calculate group generates and propagates*/
     group_gen_prop(gi, pi, ggj, gpj);
-    printf("In cla group_gen_prop done\n");
     /*calculate section generate and propagate*/
     section_gen_prop(ggj, gpj, sgk, spk);
-        printf("In cla section_gen_prop done\n");
-
     /*calculate super section generate propagate*/
     super_section_gen_prop(sgk, spk, ssgl, sspl);
-    printf("In cla super_section_gen_prop done\n");
-
     /*calculate super super section generate propagate*/
     super_super_section_gen_prop(ssgl, sspl, sssgm, ssspm);
-    printf("In cla super_super_section_gen_prop done\n");
-
 
     /*calculate super super section carry*/
     super_super_section_carry(sssgm, ssspm, ssscm);
@@ -293,64 +276,31 @@ printf("In cla alloctions done\n");
     bin_to_hex(actual_sum, converted_hex, chunksize);
     
     /*free the binary num alloctions*/
-    //free(gi); free(pi); free(ci);
-    //free(ggj); free(gpj); free(gcj);
-    //free(sgk); free(spk); free(sck);
-    //free(ssgl); free(sspl); free(sscl);
-    //free(sssgm); free(ssspm); free(ssscm);
-    //free(sum); free(actual_sum);
+    free(gi); free(pi); free(ci);
+    free(ggj); free(gpj); free(gcj);
+    free(sgk); free(spk); free(sck);
+    free(ssgl); free(sspl); free(sscl);
+    free(sssgm); free(ssspm); free(ssscm);
+    free(sum); free(actual_sum);
 }
 
 /*read input numbers */
 void read_numbers(char *first_num, char *second_num){
     //printf("Please enter 1st hex number:");
     //scanf("%s", first_num); 
-    FILE* fp; char c, i=0;
-    fp = fopen("bigdata.txt", "r");
-    //fgets(first_num, MSGSIZE+2, fp); /* read 1st number */
-    //char *fileStuff;
-    //fileStuff = (char *)malloc((MSGSIZE+3)*sizeof(char ));
-    //while(fgets(fileStuff, MSGSIZE+2, fp) != NULL){
-    //    if (i ==1){
-    //        strcpy(second_num, fileStuff);
-    //        printf("\n\n\n%s\n",second_num );
-    //        break;
-     //  }
-     //   else if(i ==0 ){
-     //       strcpy(first_num, fileStuff);
-     //       i++;
-     //   }
-   // }
-    //char tempString[262145+1];
-    //c = fgetc(fp);
-    //while (c != EOF ){
-    //    tempString[i] = c;
-    //    i++;
-    //    c = fgetc(fp);
-    //}
-    //tempString[i] = '\0';
-    //printf("%s\n", tempString);
-    //while((c = getc(fp)) != EOF && c != '\n')
-    //    *second_num++ = c;
-    //*second_num = '\0';
-
-    fgets(first_num, MSGSIZE+2, stdin);
-    //first_num[strcspn(first_num, "\n")]=0;
-    printf("%s\n\n\n\f----------dfgdgdgdggdg^^^^^^^^^^^dgn\n\n\n", first_num);
+    fgets(first_num, MSGSIZE+2, stdin); /* read 1st number */
+    first_num[strcspn(first_num, "\n")]=0;
     //printf("Please enter 2nd hex number:");
     //scanf("%s", second_num);
-    //fgets(second_num, MSGSIZE+2, fp);
-    //fgets(second_num, MSGSIZE+2, stdin); /* read 2nd number */
-    //second_num[strcspn(second_num, "\n")]=0;
-    //printf("%s\n", second_num);
+    fgets(second_num, MSGSIZE+2, stdin); /* read 2nd number */
+    second_num[strcspn(second_num, "\n")]=0;
     //printf("1st num %s and second num %s", first_num, second_num);
-    fclose(fp);
 }
 
 /*hexadecimal to binary converter*/
 void hex_to_bin(char *hex, char *binary_num){
     int i = 0, j=0;
-    for(i=0; i<MSGSIZE; i++){
+    for(i=0; i<strlen(hex); i++){
         switch(tolower(hex[i])){  /* Simple switch case to convert each hex digit */
             case '0':
                 binary_num[j] = '0';
@@ -533,8 +483,8 @@ void reverse_string(char *str){
 
 /*calculate individual generate and propagates*/
 void single_gen_prop(char *first_num, char *second_num, unsigned int *gi, unsigned int *pi){
-    unsigned long i;
-    for(i=0;i<MSGSIZE*4/ntasks; i++){
+    int i;
+    for(i=0;i<strlen(first_num); i++){
         unsigned int a = first_num[i] - '0';
         unsigned int b = second_num[i] - '0';
         gi[i] = a & b; /* Create the generate */
@@ -545,30 +495,22 @@ void single_gen_prop(char *first_num, char *second_num, unsigned int *gi, unsign
 unsigned int propagateChain(unsigned int *propagate, unsigned long start, unsigned long stop){
     unsigned int count, bitValue;
     bitValue = propagate[start];
-    //printf("inside loop 2\n");
     for (count = start-1; count> stop; count--){
-        //printf("%d\n", count);
         bitValue = bitValue&propagate[count];
     }
-    return bitValue;    
+    return bitValue;
 }
 
 /*calculate group generates and propagates*/
 void group_gen_prop(unsigned int *gi, unsigned int *pi, unsigned int *ggj, unsigned int *gpj){
     unsigned long i=0, j=0, c;
-    //printf("here group\n");
     for(i=0; i<MSGSIZE*4/ntasks; i=i+BLKSIZE){  /* Each 4 individual ith bits makes jth group */
         ggj[j] = gi[i+BLKSIZE-1];
-        //printf("inside loop\n");
         for(c = BLKSIZE-2; c>=0; c--){
             ggj[j] = ggj[j] | (gi[i+c]&propagateChain(pi, i+BLKSIZE-1, i+c));
-            //printf("stop is %d\n",  c);
             if (c==0){ break;}
         }
-        //ggj[j] = (gi[i+3]) | (gi[i+2]&pi[i+3]) | (gi[i+1]&pi[i+3]&pi[i+2]) | (gi[i]&pi[i+3]&pi[i+2]&pi[i+1]);
-        //gpj[j] = pi[i+3]&pi[i+2]&pi[i+1]&pi[i];
         gpj[j] = propagateChain(pi, i+BLKSIZE-1, i-1);
-        //printf("fuck\n");
         j = j+1;
     }
 
@@ -578,17 +520,12 @@ void group_gen_prop(unsigned int *gi, unsigned int *pi, unsigned int *ggj, unsig
 void section_gen_prop(unsigned int *ggj, unsigned int *gpj, unsigned int *sgk, unsigned int *spk){
     unsigned long j=0, k=0, c;
     for(j=0; j<MSGSIZE*4/(ntasks*BLKSIZE); j=j+BLKSIZE){  /* Each 4 jth groups makes kth section */
-        //printf("section--%d\n", j);
         sgk[k] = ggj[j+BLKSIZE-1];
         for(c = BLKSIZE-2; c>=0; c--){
             sgk[k] = sgk[k] | (ggj[j+c]&propagateChain(gpj, j+BLKSIZE-1, j+c));
-            //printf("stop is %d\n",  c);
             if (c==0){ break;}
         }
         spk[k] = propagateChain(gpj, j+BLKSIZE-1, j-1);
-
-        //sgk[k] = (ggj[j+3]) | (ggj[j+2]&gpj[j+3]) | (ggj[j+1]&gpj[j+3]&gpj[j+2]) | (ggj[j]&gpj[j+3]&gpj[j+2]&gpj[j+1]);
-        //spk[k] = gpj[j+3]&gpj[j+2]&gpj[j+1]&gpj[j];
         k = k+1;
     }
 }
@@ -597,18 +534,12 @@ void section_gen_prop(unsigned int *ggj, unsigned int *gpj, unsigned int *sgk, u
 void super_section_gen_prop(unsigned int *sgk, unsigned int *spk, unsigned int *ssgl, unsigned int *sspl){
     unsigned long k=0, l=0, c;
     for(k=0; k<MSGSIZE*4/(ntasks*pow(BLKSIZE,2)); k=k+BLKSIZE){  /* Each 4 kth section makes lth super section */
-        //printf("section--%d\n", j);
         ssgl[l] = sgk[k+BLKSIZE-1];
         for(c = BLKSIZE-2; c>=0; c--){
             ssgl[l] = ssgl[l] | (sgk[k+c]&propagateChain(spk, k+BLKSIZE-1, k+c));
-            //printf("stop is %d\n",  c);
             if (c==0){ break;}
         }
         sspl[l] = propagateChain(spk, k+BLKSIZE-1, k-1);
-
-
-        //ssgl[l] = (sgk[k+3]) | (sgk[k+2]&spk[k+3]) | (sgk[k+1]&spk[k+3]&spk[k+2]) | (sgk[k]&spk[k+3]&spk[k+2]&spk[k+1]);
-        //sspl[l] = spk[k+3]&spk[k+2]&spk[k+1]&spk[k];
         l = l+1;
     }    
 }
@@ -617,16 +548,12 @@ void super_section_gen_prop(unsigned int *sgk, unsigned int *spk, unsigned int *
 void super_super_section_gen_prop(unsigned int *ssgl, unsigned int *sspl, unsigned int *sssgm, unsigned int *ssspm){
     unsigned long l=0, m=0, c;
     for(l=0; l<MSGSIZE*4/(ntasks*pow(BLKSIZE,3)); l=l+BLKSIZE){  /* Each 4 kth section makes lth super section */
-        //printf("section--%d\n", j);
         sssgm[m] = ssgl[l+BLKSIZE-1];
         for(c = BLKSIZE-2; c>=0; c--){
             sssgm[m] = sssgm[m] | (ssgl[l+c]&propagateChain(sspl, l+BLKSIZE-1, l+c));
-            //printf("stop is %d\n",  c);
             if (c==0){ break;}
         }
         ssspm[m] = propagateChain(sspl, l+BLKSIZE-1, l-1);
-        //sssgm[m] = (ssgl[l+3]) | (ssgl[l+2]&sspl[l+3]) | (ssgl[l+1]&sspl[l+3]&sspl[l+2]) | (ssgl[l]&sspl[l+3]&sspl[l+2]&sspl[l+1]);
-        //ssspm[m] = sspl[l+3]&sspl[l+2]&sspl[l+1]&sspl[l];
         m = m+1;
     }    
 }
@@ -650,7 +577,7 @@ void super_super_section_carry(unsigned int *sssgm, unsigned int *ssspm, unsigne
         }
     }
     unsigned int toSend = ssscm[BLKSIZE/ntasks -1];
-    //printf("-----------%d-------->> %d\n",taskid, toSend );
+    printf("-----------%d-------->> %d\n",taskid, toSend );
     if (taskid != ntasks -1) {/* this is the last supersection block*/ 
         ierr=MPI_Isend(&toSend,1,MPI_UNSIGNED,
                taskid+1,0,MPI_COMM_WORLD,&send_request);
@@ -671,7 +598,7 @@ void super_section_carry(unsigned int *ssgl, unsigned int *sspl, unsigned *sscl,
                 sscl[l] = ssgl[l] | (sspl[l] & 0); /* since Super Section Carry[-1] = 0*/
             } 
             else
-                //printf("%d says sssCarry received is %d\n",taskid ,sssCarry );
+                printf("%d says sssCarry received is %d\n",taskid ,sssCarry );
                 sscl[l] = ssgl[l] | (sspl[l] & sssCarry);
         }
         else if ((l+1)%BLKSIZE ==0){
