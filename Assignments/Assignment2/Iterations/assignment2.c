@@ -183,7 +183,7 @@ int main(int argc , char **argv) {
     if(taskid ==0){
         reverse_string(actualNumber);
         //printf("3rd num from %d %s\n",taskid, actualNumber );
-        //printf("%s\n", actualNumber);
+        printf("%s\n", actualNumber);
     }
     //free(sub_first_num);
     //free(sub_second_num);
@@ -306,7 +306,7 @@ void read_numbers(char *first_num, char *second_num){
     //printf("Please enter 1st hex number:");
     //scanf("%s", first_num); 
     FILE* fp; char c, i=0;
-    fp = fopen("bigdata.txt", "r");
+    fp = fopen("bigdata1", "r");
     //fgets(first_num, MSGSIZE+2, fp); /* read 1st number */
     //char *fileStuff;
     //fileStuff = (char *)malloc((MSGSIZE+3)*sizeof(char ));
@@ -334,9 +334,9 @@ void read_numbers(char *first_num, char *second_num){
     //    *second_num++ = c;
     //*second_num = '\0';
 
-    fgets(first_num, MSGSIZE+2, stdin);
+    fgets(first_num, MSGSIZE+1, fp);
     //first_num[strcspn(first_num, "\n")]=0;
-    printf("%s\n\n\n\f----------dfgdgdgdggdg^^^^^^^^^^^dgn\n\n\n", first_num);
+    //printf("%s\n\n\n\f----------dfgdgdgdggdg^^^^^^^^^^^dgn\n\n\n", first_num);
     //printf("Please enter 2nd hex number:");
     //scanf("%s", second_num);
     //fgets(second_num, MSGSIZE+2, fp);
@@ -345,6 +345,11 @@ void read_numbers(char *first_num, char *second_num){
     //printf("%s\n", second_num);
     //printf("1st num %s and second num %s", first_num, second_num);
     fclose(fp);
+    fp = fopen("bigdata2", "r");
+    fgets(second_num, MSGSIZE+1, fp);
+    printf("%s 2 nd number \n", second_num);
+    fclose(fp);
+
 }
 
 /*hexadecimal to binary converter*/
@@ -746,6 +751,7 @@ void generate_sum(char *first_num, char *second_num, unsigned int *ci, unsigned 
     unsigned int a = first_num[i] - '0';
     unsigned int b = second_num[i] - '0';
     sum[0] = a ^ b ^ sssCarry;                  /* Sum for the 1st bit*/
+    //for(i=1;i<=strlen(second_num);i++){  /* Sum for the rest of the bits*/
     for(i=1;i<=strlen(second_num);i++){  /* Sum for the rest of the bits*/
         a = first_num[i] - '0';
         b = second_num[i] - '0';
@@ -757,10 +763,10 @@ void generate_sum(char *first_num, char *second_num, unsigned int *ci, unsigned 
 void simple_adder(char *first_num, char *second_num, unsigned int *gi, unsigned int *pi, unsigned int *ci, unsigned int *sum){
     int i;
     ci[0] = 0;
-    for(i=1;i<16;i++){
+    for(i=1;i<MSGSIZE*4;i++){
         ci[i] = gi[i-1] | (pi[i-1] & ci[i-1]);
     }
-    for(i=0;i<16;i++){
+    for(i=0;i<MSGSIZE*4;i++){
         unsigned int a = first_num[i] - '0';
         unsigned int b = second_num[i] - '0';
         sum[i] = a ^ b ^ ci[i];
