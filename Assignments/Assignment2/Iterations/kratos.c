@@ -71,19 +71,19 @@ int main(int argc , char **argv) {
     char         *converted_hex; /* the result sum hex number */
     //int          taskid, ntasks;
     unsigned long chunksize;       /*the number of bits in binary*/
-	//MPI_Status   status;
-	//MPI_Request	send_request,recv_request;
-	int          ierr,i,j,itask,recvtaskid;
-  	double       inittime,totaltime,recvtime,recvtimes[1024];
+    //MPI_Status   status;
+    //MPI_Request   send_request,recv_request;
+    int          ierr,i,j,itask,recvtaskid;
+    double       inittime,totaltime,recvtime,recvtimes[1024];
 
-	/*========================================================================*/
-	/* MPI Initialisation.                                                    */
-	MPI_Init(&argc, &argv);
+    /*========================================================================*/
+    /* MPI Initialisation.                                                    */
+    MPI_Init(&argc, &argv);
 
-	/*========================================================================*/
-	/* Get the number of MPI tasks and the taskid of this task.               */
-	MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
-	MPI_Comm_size(MPI_COMM_WORLD,&ntasks);
+    /*========================================================================*/
+    /* Get the number of MPI tasks and the taskid of this task.               */
+    MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
+    MPI_Comm_size(MPI_COMM_WORLD,&ntasks);
 
     chunksize = MSGSIZE*4/ntasks;
     char *binary_first_num; /*variable for binary version of 1st number*/
@@ -94,18 +94,18 @@ int main(int argc , char **argv) {
     sub_second_num = (char *)malloc((chunksize+1)*sizeof(char));
     converted_hex = (char *)malloc((MSGSIZE/ntasks)*sizeof(char));
     
-	/*========================================================================*/
-	/*code for rank zero											          */
-	if ( taskid == 0 ){
-    	//printf("\n\n\n");
-    	//printf("##########################################################\n\n");
-    	//printf(" no. of chunks : %lu\n",chunksize);
-    	//printf(" Number of tasks: %d\n\n",ntasks);
-    	//intf("##########################################################\n\n");
+    /*========================================================================*/
+    /*code for rank zero                                                      */
+    if ( taskid == 0 ){
+        //printf("\n\n\n");
+        //printf("##########################################################\n\n");
+        //printf(" no. of chunks : %lu\n",chunksize);
+        //printf(" Number of tasks: %d\n\n",ntasks);
+        //intf("##########################################################\n\n");
 
         /*read the two numbers from input redirected file                         */
-        first_num = (char *)malloc((MSGSIZE+2)*sizeof(char));
-        second_num = (char *)malloc((MSGSIZE+2)*sizeof(char));
+        first_num = (char *)malloc((MSGSIZE+3)*sizeof(char));
+        second_num = (char *)malloc((MSGSIZE+3)*sizeof(char));
         read_numbers( first_num, second_num);
         //printf("fffffffff");
         //printf("1st num %s\n",first_num );
@@ -166,7 +166,7 @@ int main(int argc , char **argv) {
                    actualNumber,MSGSIZE/ntasks, MPI_CHAR,
                    0,MPI_COMM_WORLD);
     //printf("gather done 1\n");
-    printf("the received value by %d ---> %d\n",taskid, sssCarry);
+    //printf("the received value by %d ---> %d\n",taskid, sssCarry);
 
 
 
@@ -305,50 +305,21 @@ void cla(char *binary_first_num, char *binary_second_num,
 void read_numbers(char *first_num, char *second_num){
     //printf("Please enter 1st hex number:");
     //scanf("%s", first_num); 
-    FILE* fp; char c, i=0;
-    fp = fopen("bigdata1", "r");
-    //fgets(first_num, MSGSIZE+2, fp); /* read 1st number */
-    //char *fileStuff;
-    //fileStuff = (char *)malloc((MSGSIZE+3)*sizeof(char ));
-    //while(fgets(fileStuff, MSGSIZE+2, fp) != NULL){
-    //    if (i ==1){
-    //        strcpy(second_num, fileStuff);
-    //        printf("\n\n\n%s\n",second_num );
-    //        break;
-     //  }
-     //   else if(i ==0 ){
-     //       strcpy(first_num, fileStuff);
-     //       i++;
-     //   }
-   // }
-    //char tempString[262145+1];
-    //c = fgetc(fp);
-    //while (c != EOF ){
-    //    tempString[i] = c;
-    //    i++;
-    //    c = fgetc(fp);
-    //}
-    //tempString[i] = '\0';
-    //printf("%s\n", tempString);
-    //while((c = getc(fp)) != EOF && c != '\n')
-    //    *second_num++ = c;
-    //*second_num = '\0';
-
-    fgets(first_num, MSGSIZE+1, fp);
-    //first_num[strcspn(first_num, "\n")]=0;
-    //printf("%s\n\n\n\f----------dfgdgdgdggdg^^^^^^^^^^^dgn\n\n\n", first_num);
+    fgets(first_num, MSGSIZE+2, stdin); /* read 1st number */
+    first_num[strcspn(first_num, "\n")]=0;
+    printf("%s\n\n\n----------dfgdgdgdggdg^^^^^^^^^^^dgn\n\n\n", first_num);
     //printf("Please enter 2nd hex number:");
     //scanf("%s", second_num);
-    //fgets(second_num, MSGSIZE+2, fp);
-    //fgets(second_num, MSGSIZE+2, stdin); /* read 2nd number */
-    //second_num[strcspn(second_num, "\n")]=0;
-    //printf("%s\n", second_num);
+    //fgets(second_num, MSGSIZE, stdin);
+    fgets(second_num, MSGSIZE+1, stdin); /* read 2nd number */
+    second_num[strcspn(second_num, "\n")]=0;
+    printf("%s\n", second_num);
     //printf("1st num %s and second num %s", first_num, second_num);
-    fclose(fp);
-    fp = fopen("bigdata2", "r");
-    fgets(second_num, MSGSIZE+1, fp);
+    //fclose(fp);
+    //fp = fopen("bigdata2", "r");
+    //fgets(second_num, MSGSIZE+1, fp);
     //printf("%s 2 nd number \n", second_num);
-    fclose(fp);
+    //fclose(fp);
 
 }
 
@@ -506,7 +477,7 @@ void bin_to_hex(unsigned int *binary, char *converted_hex, int size){
             converted_hex[k] = 'F';
         }
         else
-            printf("^^^^^^^^^^%s^^^^^^^", temp);
+            //printf("^^^^^^^^^^%s^^^^^^^", temp);
         k = k+1;
     }
     //printf("****************** %s\n", converted_hex);
@@ -633,7 +604,7 @@ void super_super_section_gen_prop(unsigned int *ssgl, unsigned int *sspl, unsign
         //sssgm[m] = (ssgl[l+3]) | (ssgl[l+2]&sspl[l+3]) | (ssgl[l+1]&sspl[l+3]&sspl[l+2]) | (ssgl[l]&sspl[l+3]&sspl[l+2]&sspl[l+1]);
         //ssspm[m] = sspl[l+3]&sspl[l+2]&sspl[l+1]&sspl[l];
         m = m+1;
-        printf("==========%d-------->> %d ------ propagate %d\n",taskid, sssgm[m], ssspm[m] );
+        //printf("==========%d-------->> %d ------ propagate %d\n",taskid, sssgm[m], ssspm[m] );
     }    
 }
 
@@ -653,10 +624,10 @@ void super_super_section_carry(unsigned int *sssgm, unsigned int *ssspm, unsigne
         else{
             ssscm[m] = sssgm[m] | (ssspm[m] & ssscm[m-1]);
         }
-        printf("````````rank %d ssC %d   g %d    p %d   c %d\n",taskid, m, sssgm[m], ssspm[m] , ssscm[m]);
+        //printf("````````rank %d ssC %d   g %d    p %d   c %d\n",taskid, m, sssgm[m], ssspm[m] , ssscm[m]);
     }
     unsigned int toSend = ssscm[BLKSIZE/ntasks -1];
-    printf("-----------%d-------->> %d\n",taskid, toSend );
+    //printf("-----------%d-------->> %d\n",taskid, toSend );
     //if(taskid ==1){
     //    toSend = 1;
     //    printf("-----------%d modified-------->> %d\n",taskid, toSend );

@@ -505,8 +505,8 @@ void bin_to_hex(unsigned int *binary, char *converted_hex, int size){
         } else if(strcmp(temp, "1111")==0){
             converted_hex[k] = 'F';
         }
-        else
-            printf("^^^^^^^^^^%s^^^^^^^", temp);
+        //else
+            //printf("\n\n\nstuck\n");
         k = k+1;
     }
     //printf("****************** %s\n", converted_hex);
@@ -633,7 +633,6 @@ void super_super_section_gen_prop(unsigned int *ssgl, unsigned int *sspl, unsign
         //sssgm[m] = (ssgl[l+3]) | (ssgl[l+2]&sspl[l+3]) | (ssgl[l+1]&sspl[l+3]&sspl[l+2]) | (ssgl[l]&sspl[l+3]&sspl[l+2]&sspl[l+1]);
         //ssspm[m] = sspl[l+3]&sspl[l+2]&sspl[l+1]&sspl[l];
         m = m+1;
-        printf("==========%d-------->> %d ------ propagate %d\n",taskid, sssgm[m], ssspm[m] );
     }    
 }
 
@@ -650,10 +649,12 @@ void super_super_section_carry(unsigned int *sssgm, unsigned int *ssspm, unsigne
                 ssscm[m] = sssgm[m] | (ssspm[m] & sssCarry);
             }
         }
+        else if ((m+1)%BLKSIZE ==0){ /* every fourth block*/
+            ssscm[m] = sssgm[m] | (ssspm[m] & ssscm[(m+1)/BLKSIZE-1]);
+        }
         else{
             ssscm[m] = sssgm[m] | (ssspm[m] & ssscm[m-1]);
         }
-        printf("````````rank %d ssC %d   g %d    p %d   c %d\n",taskid, m, sssgm[m], ssspm[m] , ssscm[m]);
     }
     unsigned int toSend = ssscm[BLKSIZE/ntasks -1];
     printf("-----------%d-------->> %d\n",taskid, toSend );
@@ -684,7 +685,7 @@ void super_section_carry(unsigned int *ssgl, unsigned int *sspl, unsigned *sscl,
                 //printf("%d says sssCarry received is %d\n",taskid ,sssCarry );
                 sscl[l] = ssgl[l] | (sspl[l] & sssCarry);
         }
-        else if (l%BLKSIZE ==0){
+        else if ((l+1)%BLKSIZE ==0){
             sscl[l] = ssgl[l] | (sspl[l] & ssscm[(l+1)/BLKSIZE-1]);
         }
         else {
@@ -703,7 +704,7 @@ void section_carry(unsigned int *sgk, unsigned int *spk, unsigned int *sck, unsi
             else
                 sck[k] = sgk[k] | (spk[k] & sssCarry);
         }
-        else if ((k)%BLKSIZE ==0 ){
+        else if ((k+1)%BLKSIZE ==0 ){
             sck[k] = sgk[k] | (spk[k] & sscl[(k+1)/BLKSIZE-1]);
         }
         else{
@@ -722,7 +723,7 @@ void group_carry(unsigned int *ggj, unsigned int *gpj, unsigned int *gcj, unsign
             else
                 gcj[j] = ggj[j] | (gpj[j] & sssCarry);
         }
-        else if ((j)%BLKSIZE ==0 ){
+        else if ((j+1)%BLKSIZE ==0 ){
             gcj[j] = ggj[j] | (gpj[j] & sck[(j+1)/BLKSIZE-1]);
         }
         else{
@@ -741,7 +742,7 @@ void single_carry(unsigned int *gi, unsigned int *pi, unsigned int *ci, unsigned
             else
                 ci[i] = gi[i] | (pi[i] & sssCarry);
         }
-        else if ((i)%BLKSIZE ==0){
+        else if ((i+1)%BLKSIZE ==0){
             ci[i] = gi[i] | (pi[i] & gcj[(i+1)/BLKSIZE-1]);
         }
         else{

@@ -1,0 +1,54 @@
+problems:
+
+1. Test case 1 is okay
+2. running test file 2 with mpi 4 instead of 2 - extra FFFF block in output
+3. Test case 3 works with 1, 2 ,4 ,8 mpi ranks correctly 
+4. Works with 1,2 doesnot work with 4. Error ar line 730. Somewhere in the happens while sending from the 3rd (4 group) to the last 4 group
+	4 generates correct super section level carries now
+5. 5 works now
+6. 6 works with 2
+7. 7 doesnot run with 16, but with all else
+
+
+-----------1-------->> 0
+-----------2-------->> 1
+-----------3-------->> 0
+-----------0-------->> 1
+
+-----------0-------->> 0
+-----------1-------->> 0
+
+-----------4-------->> 0
+-----------6-------->> 0
+-----------7-------->> 0
+-----------8-------->> 1
+-----------2-------->> 0
+-----------1-------->> 0
+-----------3-------->> 1
+-----------5-------->> 0
+-----------10-------->> 0
+-----------9-------->> 0
+-----------11-------->> 0
+-----------12-------->> 0
+-----------15-------->> 0
+-----------13-------->> 0
+-----------14-------->> 0
+-----------0-------->> 0
+
+728*90+16=65536
+
+
+B3958DF9ED|00 ip/2
+000000000F|FF ip/1
+B3958DF9FD|00 res
+B3958EF9FD|00 my o/p
+
+-----------1-------->> 0
+-----------1 modified-------->> 1
+-----------2-------->> 1
+-----------0-------->> 1
+-----------3-------->> 0
+the received value by 2 ---> 1
+the received value by 1 ---> 1
+the received value by 0 ---> 0
+the received value by 3 ---> 1

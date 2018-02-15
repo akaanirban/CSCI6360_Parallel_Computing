@@ -1,8 +1,8 @@
 /******************************************************************************
  * FILE: assignment1.c
  * DESCRIPTION:  
- *   This code takes in two 64 digit HEX numbers and uses a 256 bit 
- *   hierarchical CLA with 4 bit blocks to compute their sum
+ *   This code takes in two 262144 digit HEX numbers and uses a 256 bit 
+ *   hierarchical CLA with 16 bit blocks to compute their sum
  *   Anirban Das (dasa2@rpi.edu)
  *   01/30/2018
  ******************************************************************************/
@@ -301,13 +301,35 @@ void cla(char *binary_first_num, char *binary_second_num,
     //free(sum); free(actual_sum);
 }
 
+
 /*read input numbers */
+void read_numbers(char *first_num, char *second_num){
+    //printf("Please enter 1st hex number:");
+    //scanf("%s", first_num); 
+    fgets(first_num, MSGSIZE+2, stdin); /* read 1st number */
+    first_num[strcspn(first_num, "\n")]=0;
+    //printf("%s\n\n\n----------dfgdgdgdggdg^^^^^^^^^^^dgn\n\n\n", first_num);
+    //printf("Please enter 2nd hex number:");
+    //scanf("%s", second_num);
+    //fgets(second_num, MSGSIZE, stdin);
+    fgets(second_num, MSGSIZE+1, stdin); /* read 2nd number */
+    second_num[strcspn(second_num, "\n")]=0;
+    //printf("%s\n", second_num);
+    //printf("1st num %s and second num %s", first_num, second_num);
+    //fclose(fp);
+    //fp = fopen("bigdata2", "r");
+    //fgets(second_num, MSGSIZE+1, fp);
+    //printf("%s 2 nd number \n", second_num);
+    //fclose(fp);
+
+}
+/*read input numbers 
 void read_numbers(char *first_num, char *second_num){
     //printf("Please enter 1st hex number:");
     //scanf("%s", first_num); 
     FILE* fp; char c, i=0;
     fp = fopen("bigdata1", "r");
-    //fgets(first_num, MSGSIZE+2, fp); /* read 1st number */
+    //fgets(first_num, MSGSIZE+2, fp); //read 1st number 
     //char *fileStuff;
     //fileStuff = (char *)malloc((MSGSIZE+3)*sizeof(char ));
     //while(fgets(fileStuff, MSGSIZE+2, fp) != NULL){
@@ -340,7 +362,7 @@ void read_numbers(char *first_num, char *second_num){
     //printf("Please enter 2nd hex number:");
     //scanf("%s", second_num);
     //fgets(second_num, MSGSIZE+2, fp);
-    //fgets(second_num, MSGSIZE+2, stdin); /* read 2nd number */
+    //fgets(second_num, MSGSIZE+2, stdin); //read 2nd number
     //second_num[strcspn(second_num, "\n")]=0;
     //printf("%s\n", second_num);
     //printf("1st num %s and second num %s", first_num, second_num);
@@ -350,7 +372,7 @@ void read_numbers(char *first_num, char *second_num){
     //printf("%s 2 nd number \n", second_num);
     fclose(fp);
 
-}
+}*/
 
 /*hexadecimal to binary converter*/
 void hex_to_bin(char *hex, char *binary_num){
