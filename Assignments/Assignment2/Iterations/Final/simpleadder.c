@@ -207,7 +207,7 @@ int main(int argc , char **argv) {
 /*main routine doing all the CLA steps and return the sum*/ 
 void cla(char *binary_first_num, char *binary_second_num, 
             char *converted_hex, unsigned long chunksize){
-    printf("%d\n",chunksize );
+
     int i=0; /*dummy value for counting stuff*/
     unsigned int *gi; /*variable for individual generate*/
     gi = (unsigned int *)calloc(chunksize, sizeof(unsigned int));
@@ -283,7 +283,7 @@ printf("In cla alloctions done\n");
 void read_numbers(char *first_num, char *second_num){
     //printf("Please enter 1st hex number:");
     //scanf("%s", first_num); 
-    FILE* fp; char c, i=0;
+    FILE* fp; 
     fp = fopen("bigdata1", "r");
     //fgets(first_num, MSGSIZE+2, fp); /* read 1st number */
     //char *fileStuff;
@@ -616,7 +616,7 @@ void super_super_section_gen_prop(unsigned int *ssgl, unsigned int *sspl, unsign
 
 /*calculate super super section carry*/
 void super_super_section_carry(unsigned int *sssgm, unsigned int *ssspm, unsigned *ssscm){
-    int m, ierr;
+    int m;
     for(m = 0; m < BLKSIZE/ntasks; m++ ){
         if(m == 0) { /*1st s3section*/
             if(taskid ==0){
