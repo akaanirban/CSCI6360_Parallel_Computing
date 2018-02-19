@@ -95,7 +95,7 @@ int main(int argc , char **argv) {
 	t1 = MPI_Wtime();
 
 
-    chunksize = MSGSIZE*4/ntasks;
+    chunksize = MSGSIZE*4/ntasks; //number of binary bits per rank
     char *binary_first_num; /*variable for binary version of 1st number*/
     char *binary_second_num; /*variable for binary version of 2nd number*/
     char *sub_first_num;
@@ -290,7 +290,10 @@ void cla(char *binary_first_num, char *binary_second_num,
     
     /* convert the binary result to HEX*/
     bin_to_hex(actual_sum, converted_hex, chunksize);
-    
+    if (taskid ==3){
+        //reverse_string(converted_hex);
+        // /printf("%s\n", converted_hex);
+    }
     /*free the binary num alloctions*/
     free(gi); free(pi); free(ci);
     free(ggj); free(gpj); free(gcj);
@@ -519,12 +522,20 @@ void single_gen_prop(char *first_num, char *second_num, unsigned int *gi, unsign
 
 unsigned int propagateChain(unsigned int *propagate, unsigned long start, unsigned long stop){
     unsigned int count, bitValue;
-    bitValue = propagate[start];
+    //bitValue = propagate[stop+1];
     //printf("inside loop 2\n");
+    bitValue = propagate[start];
     for (count = start-1; count> stop; count--){
-        //printf("%d\n", count);
-        bitValue = bitValue&propagate[count];
+        if(count == 14)
+        printf("%d+++++++++++++++++++++++++++%d\n", count, stop);
+
+       bitValue = bitValue & propagate[count];
     }
+    //for(count = stop+2; count<= start; count++){
+    //    bitValue = bitValue & propagate[count];
+    //}
+
+
     return bitValue;    
 }
 
@@ -533,16 +544,31 @@ void group_gen_prop(unsigned int *gi, unsigned int *pi, unsigned int *ggj, unsig
     unsigned long i=0, j=0, c;
     //printf("here group\n");
     for(i=0; i<MSGSIZE*4/ntasks; i=i+BLKSIZE){  /* Each 4 individual ith bits makes jth group */
-        ggj[j] = gi[i+BLKSIZE-1];
-        //printf("inside loop\n");
-        for(c = BLKSIZE-2; c>=0; c--){
-            ggj[j] = ggj[j] | (gi[i+c]&propagateChain(pi, i+BLKSIZE-1, i+c));
-            //printf("stop is %d\n",  c);
-            if (c==0){ break;}
-        }
-        //ggj[j] = (gi[i+3]) | (gi[i+2]&pi[i+3]) | (gi[i+1]&pi[i+3]&pi[i+2]) | (gi[i]&pi[i+3]&pi[i+2]&pi[i+1]);
-        //gpj[j] = pi[i+3]&pi[i+2]&pi[i+1]&pi[i];
-        gpj[j] = propagateChain(pi, i+BLKSIZE-1, i-1);
+       ggj[j] = (gi[i+15]) 
+                | (gi[i+14]&pi[i+15]) 
+                | (gi[i+13]&pi[i+15]&pi[i+14]) 
+                | (gi[i+12]&pi[i+15]&pi[i+14]&pi[i+13]) 
+                | (gi[i+11]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12])
+                | (gi[i+10]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11])
+                | (gi[i+9]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10])
+                | (gi[i+8]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9])
+                | (gi[i+7]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8])
+                | (gi[i+6]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8]&pi[i+7])
+                | (gi[i+5]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8]&pi[i+7]&pi[i+6])
+                | (gi[i+4]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8]&pi[i+7]&pi[i+6]&pi[i+5])
+                | (gi[i+3]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8]&pi[i+7]&pi[i+6]&pi[i+5]&pi[i+4])
+                | (gi[i+2]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8]&pi[i+7]&pi[i+6]&pi[i+5]&pi[i+4]&pi[i+3])
+                | (gi[i+1]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8]&pi[i+7]&pi[i+6]&pi[i+5]&pi[i+4]&pi[i+3]&pi[i+2])
+                | (gi[i]&pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8]&pi[i+7]&pi[i+6]&pi[i+5]&pi[i+4]&pi[i+3]&pi[i+2]&pi[i+1])
+                ;
+        //ggj[j] = gi[i+BLKSIZE-1];
+        //for(c = BLKSIZE-2; c>=0; c--){
+        //    ggj[j] = ggj[j] | (gi[i+c]&propagateChain(pi, i+BLKSIZE-1, i+c));
+       //     printf("stop is %d\n",  c);
+       //     if (c==0){ break;}
+       // }
+                gpj[j] = pi[i+15]&pi[i+14]&pi[i+13]&pi[i+12]&pi[i+11]&pi[i+10]&pi[i+9]&pi[i+8]&pi[i+7]&pi[i+6]&pi[i+5]&pi[i+4]&pi[i+3]&pi[i+2]&pi[i+1]&pi[i];
+       //gpj[j] = propagateChain(pi, i+BLKSIZE-1, i-1);
         //printf("stuck\n");
         j = j+1;
     }
@@ -610,6 +636,7 @@ void super_super_section_gen_prop(unsigned int *ssgl, unsigned int *sspl, unsign
 /*calculate super super section carry*/
 void super_super_section_carry(unsigned int *sssgm, unsigned int *ssspm, unsigned *ssscm){
     int m;
+
     for(m = 0; m < BLKSIZE/ntasks; m++ ){
         if(m == 0) { /*1st super super section*/
             if(taskid ==0){
@@ -617,10 +644,13 @@ void super_super_section_carry(unsigned int *sssgm, unsigned int *ssspm, unsigne
             }
             else {
                 ierr=MPI_Wait(&recv_request,&status);
+                //printf("S3c-----carry received %d by taskid %d \n", sssCarry, taskid);
                 ssscm[m] = sssgm[m] | (ssspm[m] & sssCarry);
+              //  printf("S3c-----Now taskid %d prints this line\n", taskid);
             }
         }
         else{
+            //printf("S3c-----Now taskid %d prints this line m = %d\n", taskid, m);
             ssscm[m] = sssgm[m] | (ssspm[m] & ssscm[m-1]);
         }
         //printf("````````rank %d ssC %d   g %d    p %d   c %d\n",taskid, m, sssgm[m], ssspm[m] , ssscm[m]);
@@ -634,12 +664,10 @@ void super_super_section_carry(unsigned int *sssgm, unsigned int *ssspm, unsigne
     if (taskid != ntasks -1) {/* this is not the last supersection block*/ 
         ierr=MPI_Isend(&toSend,1,MPI_UNSIGNED,
                taskid+1,0,MPI_COMM_WORLD,&send_request);
-        //ierr=MPI_Wait(&send_request,&status);
+        ierr=MPI_Wait(&send_request,&status);
         //ierr=MPI_Wait(&recv_request,&status);
     }
-    //if(taskid !=0){
-    //    ierr=MPI_Wait(&recv_request,&status);
-    //}
+
 }
 
 /*calculate super section carry*/
@@ -654,11 +682,13 @@ void super_section_carry(unsigned int *ssgl, unsigned int *sspl, unsigned *sscl,
                 //printf("%d says sssCarry received is %d\n",taskid ,sssCarry );
                 sscl[l] = ssgl[l] | (sspl[l] & sssCarry);
         }
-        else if (l%BLKSIZE ==0){
-            sscl[l] = ssgl[l] | (sspl[l] & ssscm[(l+1)/BLKSIZE-1]);
-        }
         else {
-            sscl[l] = ssgl[l] | (sspl[l] & sscl[l-1]); 
+            if (l%BLKSIZE ==0){
+                sscl[l] = ssgl[l] | (sspl[l] & ssscm[(l)/BLKSIZE-1]);
+            }
+            else {
+                sscl[l] = ssgl[l] | (sspl[l] & sscl[l-1]); 
+            }
         }
     }
 }
@@ -673,11 +703,13 @@ void section_carry(unsigned int *sgk, unsigned int *spk, unsigned int *sck, unsi
             else
                 sck[k] = sgk[k] | (spk[k] & sssCarry);
         }
-        else if ((k)%BLKSIZE ==0 ){
-            sck[k] = sgk[k] | (spk[k] & sscl[(k+1)/BLKSIZE-1]);
-        }
-        else{
-            sck[k] = sgk[k] | (spk[k] & sck[k-1]);
+        else {
+                if (k%BLKSIZE ==0 ){
+                sck[k] = sgk[k] | (spk[k] & sscl[(k)/BLKSIZE-1]);
+            }
+            else{
+                sck[k] = sgk[k] | (spk[k] & sck[k-1]);
+            }
         }
     }
 }
@@ -689,35 +721,58 @@ void group_carry(unsigned int *ggj, unsigned int *gpj, unsigned int *gcj, unsign
         if(j==0){
             if(taskid ==0)
                 gcj[j] = ggj[j] | (gpj[j] & 0); /* since Group Carry[-1] = 0*/
-            else
+            else{
+                if (taskid==3 && j>16375)
+                printf("I got G1 = gcj%d  gpj%d ggj%d for j %d\n", sssCarry, gpj[j], ggj[j],j);
                 gcj[j] = ggj[j] | (gpj[j] & sssCarry);
+            }
         }
-        else if ((j)%BLKSIZE ==0 ){
-            gcj[j] = ggj[j] | (gpj[j] & sck[(j+1)/BLKSIZE-1]);
-        }
-        else{
-            gcj[j] = ggj[j] | (gpj[j] & gcj[j-1]);
+        else {
+            if ((j)%BLKSIZE ==0 ){
+                gcj[j] = ggj[j] | (gpj[j] & sck[(j)/BLKSIZE-1]);
+            }
+            else{
+                gcj[j] = ggj[j] | (gpj[j] & gcj[j-1]);
+            }
+            if (taskid==3 && j>16375)
+                printf("I got G1 = gcj%d  gpj%d ggj%d for j %d\n", gcj[j], gpj[j], ggj[j],j);
         }
     }
+if (taskid==3)
+    printf("^^^^0- %d^^^^1 - %d^^^^2 - %d\n", gcj[0], gcj[1], gcj[2]);
 }
 
 /*calculate individual carries*/
 void single_carry(unsigned int *gi, unsigned int *pi, unsigned int *ci, unsigned int *gcj){
     int i;
+    printf("%d sssscarry received by %d\n",sssCarry, taskid);
     for(i=0; i<pow(BLKSIZE,5)/ntasks;i++){
         if(i==0){
             if(taskid ==0)
                 ci[i] = gi[i] | (pi[i] & 0); /* since individual Carry[-1] = 0*/
             else
                 ci[i] = gi[i] | (pi[i] & sssCarry);
+            if(taskid==3)
+            printf("i= %d gi = %d   gp = %d   ssscarry=%d  gc+1 %d gcj  %d here------\n",i, gi[i], pi[i], sssCarry, ci[i], gcj[(i)/BLKSIZE-1]);
         }
-        else if ((i)%BLKSIZE ==0){
-            ci[i] = gi[i] | (pi[i] & gcj[(i+1)/BLKSIZE-1]);
+        else {
+            if ((i)%BLKSIZE ==0){
+                if (i<36)
+                    printf("-----%d-------%d------%d\n", i, (i)/BLKSIZE-1, gcj[(i)/BLKSIZE-1]);
+                ci[i] = gi[i] | (pi[i] & gcj[(i)/BLKSIZE-1]);
+            }
+            else{
+                ci[i] = gi[i] | (pi[i] & ci[i-1]);
+            }
         }
-        else{
-            ci[i] = gi[i] | (pi[i] & ci[i-1]);
-        }
+    if(taskid ==3){
+        if (i<36)
+            printf("i = %d gi = %d   gp = %d   gc=%d  gc+1 %d  gcj  %d\n", i,gi[i], pi[i], ci[i-1], ci[i], (i)/BLKSIZE-1);
     }
+    }
+    if (taskid==3)
+    printf("^^^^0- %d^^^^1 - %d^^^^2 - %d\n", gcj[0], gcj[1], gcj[2]);
+
 }
 
 /*calculate the actual sum from carry, generate and propagate*/
@@ -725,13 +780,24 @@ void generate_sum(char *first_num, char *second_num, unsigned int *ci, unsigned 
     int i=0;
     unsigned int a = first_num[i] - '0';
     unsigned int b = second_num[i] - '0';
-    sum[0] = a ^ b ^ sssCarry;                  /* Sum for the 1st bit*/
+     sum[0] = a ^ b ^ sssCarry;
+                     
     //for(i=1;i<=strlen(second_num);i++){  /* Sum for the rest of the bits*/
     for(i=1;i<=strlen(second_num);i++){  /* Sum for the rest of the bits*/
         a = first_num[i] - '0';
         b = second_num[i] - '0';
         sum[i] = a ^ b ^ ci[i-1]; 
     }
+    if(taskid ==3){
+    for (i = 0 ; i< 32; i++){
+        if (i==0)
+            printf("gi = %d   gp = %d   gc=%d  1st %c    2nd %c  sum-->%d\n", gi[i], pi[i], sssCarry, first_num[i], second_num[i], sum[i]);
+        else
+            printf("gi = %d   gp = %d   gc=%d  1st %c    2nd %c  sum-->%d  %d\n", gi[i], pi[i], ci[i-1], first_num[i], second_num[i], sum[i], i);
+    
+    }    
+    }
+    
 }
 
 /*working simple ripple carry adder to validate results*/
