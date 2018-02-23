@@ -523,7 +523,7 @@ unsigned int propagateChain(unsigned int *propagate, unsigned long start, unsign
 /*calculate group generates and propagates*/
 void group_gen_prop(unsigned int *gi, unsigned int *pi, unsigned int *ggj, unsigned int *gpj){
     unsigned long i=0, j=0;//,c;
-    for(i=0; i<MSGSIZE*4/ntasks; i=i+BLKSIZE){  /* Each 4 individual ith bits makes jth group */
+    for(i=0; i<MSGSIZE*4/ntasks; i=i+BLKSIZE){  /* Each 16 individual ith bits makes jth group */
        ggj[j] = (gi[i+15]) 
                 | (gi[i+14]&pi[i+15]) 
                 | (gi[i+13]&pi[i+15]&pi[i+14]) 
@@ -558,7 +558,7 @@ void group_gen_prop(unsigned int *gi, unsigned int *pi, unsigned int *ggj, unsig
 /*calculate section generate and propagate*/
 void section_gen_prop(unsigned int *ggj, unsigned int *gpj, unsigned int *sgk, unsigned int *spk){
     unsigned long j=0, k=0, c;
-    for(j=0; j<MSGSIZE*4/(ntasks*BLKSIZE); j=j+BLKSIZE){  /* Each 4 jth groups makes kth section */
+    for(j=0; j<MSGSIZE*4/(ntasks*BLKSIZE); j=j+BLKSIZE){  /* Each 16 jth groups makes kth section */
         sgk[k] = ggj[j+BLKSIZE-1];
         for(c = BLKSIZE-2; c>=0; c--){
             sgk[k] = sgk[k] | (ggj[j+c]&propagateChain(gpj, j+BLKSIZE-1, j+c));
@@ -572,7 +572,7 @@ void section_gen_prop(unsigned int *ggj, unsigned int *gpj, unsigned int *sgk, u
 /*calculate super section generate and propagate*/
 void super_section_gen_prop(unsigned int *sgk, unsigned int *spk, unsigned int *ssgl, unsigned int *sspl){
     unsigned long k=0, l=0, c;
-    for(k=0; k<MSGSIZE*4/(ntasks*pow(BLKSIZE,2)); k=k+BLKSIZE){  /* Each 4 kth section makes lth super section */
+    for(k=0; k<MSGSIZE*4/(ntasks*pow(BLKSIZE,2)); k=k+BLKSIZE){  /* Each 16 kth section makes lth super section */
         ssgl[l] = sgk[k+BLKSIZE-1];
         for(c = BLKSIZE-2; c>=0; c--){
             ssgl[l] = ssgl[l] | (sgk[k+c]&propagateChain(spk, k+BLKSIZE-1, k+c));
@@ -586,7 +586,7 @@ void super_section_gen_prop(unsigned int *sgk, unsigned int *spk, unsigned int *
 /*calculate super super section generate and propagate*/
 void super_super_section_gen_prop(unsigned int *ssgl, unsigned int *sspl, unsigned int *sssgm, unsigned int *ssspm){
     unsigned long l=0, m=0, c;
-    for(l=0; l<MSGSIZE*4/(ntasks*pow(BLKSIZE,3)); l=l+BLKSIZE){  /* Each 4 kth section makes lth super section */
+    for(l=0; l<MSGSIZE*4/(ntasks*pow(BLKSIZE,3)); l=l+BLKSIZE){  /* Each 16 lth super section makes mth super super section */
         sssgm[m] = ssgl[l+BLKSIZE-1];
         for(c = BLKSIZE-2; c>=0; c--){
             sssgm[m] = sssgm[m] | (ssgl[l+c]&propagateChain(sspl, l+BLKSIZE-1, l+c));
