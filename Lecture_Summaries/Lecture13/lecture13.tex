@@ -1,0 +1,47 @@
+\documentclass[a4paper,12 pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper, margin=0.8in}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\setlist{  
+  listparindent=\parindent,
+  parsep=0pt,
+}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage[normalem]{ulem}
+\usepackage{natbib}
+\usepackage{listings}
+
+
+\title{\vspace{-2.0cm}CSCI 6360: Parallel Computing Lecture Summary - 13}
+\author{Anirban Das (dasa2@rpi.edu) }
+\date{March 9, 2018}
+
+
+\begin{document}
+\maketitle
+
+\paragraph{Summary on Parallel I/O papers n Lecture 13:\\\\}
+
+\section{Incast Problem} Overall message is basically if you are running a large scale storage system it is incredibly challenging to run. Its not worth the grad students time to be in storage business unless its a enterprise class storage system.
+
+TCP gives you most BW available , QOS, using congestion protocols and backup systems. Becomes bottleneck in data centers i.e basically with scaling. When all MPI ranks tries to fopen a single file the throughput collapses. In datacenters the equipments are really really close, hence in general we dont see such high speeds in internet.
+
+Preconditions for TCP incast collapse: 3. What can help fix this problem.
+
+Look at various matrix. RTOmin vs Goodput graph. Aggregate more server, less BW per server and hence links not saturated /. As long as we have a responsive rto then we could expect a high godput across all servers. 
+
+Rtt in milliseconds graph.
+ Bottomline claims: need to use fine grained RTT things and other one is the 3 reasons for in cast.
+ 
+\section{I/O performance challenge at Leadership scale} Which talks about IO challenges in order to get their own storage systems to work. Mordern IO storage system in mordern HPC systems. 
+
+How did this system perform under workloadIOR benchmark
+
+\end{document}
