@@ -126,7 +126,7 @@ unsigned long long arraySum(unsigned long long * array, unsigned long long size)
     return sum;
 }
 
-
+/*
 stride = 2; noSteps = log(ARRSIZE); 
 while(noSteps){
     for(i = 0;i<ntasks;i++){
@@ -144,3 +144,4 @@ while(noSteps){
     }
     noSteps-=1;
 }
+*/
