@@ -27,21 +27,12 @@
 \begin{document}
 \maketitle
 
-\paragraph{Summary on Parallel I/O papers n Lecture 13:\\\\}
+\paragraph{Summary on Parallel I/O papers in Lecture 13:\\\\}
 
-\section{Incast Problem} Overall message is basically if you are running a large scale storage system it is incredibly challenging to run. Its not worth the grad students time to be in storage business unless its a enterprise class storage system.
+In this paper \textit{Safe and Effective Fine-grained TCP Retransmissions for Datacenter Communication}, the authors looks at the TCP incast problem and its main causes in data centers with large scale storage system and present a practical solution. Though TCP allows usage of most BW available, the TCP incast problem arises when multiple applications tries to communicate with a single receiver in high bandwidth but low delay networks using TCP. This in turn fills up the ethernet switch buffers and causes packet loss, QOS degradation, timeout exceptions etc. Adding to the woes would be a barrier synchronised workload occuring in parallel where the client doesnot issue request untill all inflight requests receive returns. A typical example would be throughput collapse when all MPI ranks try to fopen a single file.
 
-TCP gives you most BW available , QOS, using congestion protocols and backup systems. Becomes bottleneck in data centers i.e basically with scaling. When all MPI ranks tries to fopen a single file the throughput collapses. In datacenters the equipments are really really close, hence in general we dont see such high speeds in internet.
+They authors use RTO estimation for measuring TCP throughput performance. They show in both simulation and real experiments on cluster that reducing the RTO and adding randomness improves the goodput reducing RTO can be an effective solution. The decreased goodput mainly was caused by many flows timing out simultaneously or backing off deterministically and retransmitting at the exact same time. They observed that as the aggregation occurs over more servers in the cluster, the effective bandwidth per server decreases and hence the links are not saturated. Hence goodput goes down with increase in number of servers. However, the implementation of microsecond level RTO values in TCP avoids incast collapse in real world clusters and allows high fan in, and the authors show that this doesnot effect the performance of bulk data TCP flows. The bottom line is we need to have a higher resolution and fine grained TCP retransmission in order to prevent TCP incast problem in low latency data centers. 
 
-Preconditions for TCP incast collapse: 3. What can help fix this problem.
-
-Look at various matrix. RTOmin vs Goodput graph. Aggregate more server, less BW per server and hence links not saturated /. As long as we have a responsive rto then we could expect a high godput across all servers. 
-
-Rtt in milliseconds graph.
- Bottomline claims: need to use fine grained RTT things and other one is the 3 reasons for in cast.
- 
-\section{I/O performance challenge at Leadership scale} Which talks about IO challenges in order to get their own storage systems to work. Mordern IO storage system in mordern HPC systems. 
-
-How did this system perform under workloadIOR benchmark
+In the paper \textit{I/O Performance Challenges at Leadership Scale}, the authors talk about IO challenges in order to get storage systems to work in massive 'leadership' scale systems or mordern HPC systems. They evaluate the scalability of parallel storage on Intrepid, which is a Blue Gene/P system. They did a synthetic benchmark of the full scale I/O subsystem by moving sets of data between IO nodes and compute nodes. As well as a scaling study to measure IOR. A mixed workload MADbench2 reveals large writeback cache boosts write performance but write is slow. FLASH3 reveals significant difference between performance of PnetCDF and HDF5. Thus, overall the authors found that with increasing process counts, I/O becomes a bottleneck as peak rate performance becomes increasing difficult. Further the I/O performance varies considerably on the libraries and application used, where a combined effort from storage system developer, application developer and file system developers may help optimise and boost performance.
 
 \end{document}
