@@ -1,0 +1,6 @@
+all:
+	mpixlc -O5 p2p_mpi_reduce.c -o assignment3_all
+
+debug:
+	
+	mpixlc -g p2p_mpi_reduce.c -o assignment3_debug

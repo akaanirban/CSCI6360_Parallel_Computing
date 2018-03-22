@@ -13,7 +13,7 @@
 #include <mpi.h>
 #include <math.h>
 
-#define ARRSIZE 1024//1073741824
+#define ARRSIZE 1073741824
 #define BGQ 1  // when running BG/Q,
 
 //#ifdef BGQ
