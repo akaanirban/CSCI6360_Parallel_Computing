@@ -45,14 +45,14 @@ The following is the same graph, but with a $\pmb{\log_{10}(seconds)}$ Y axis, s
 
 
 \subsection{Observations}
-\textbf{First of all, \mpi is always faster than \pp.}
+\textbf{First of all, \mpi is always faster than \pp.} This is uniform across all rank runs. 
 
 \begin{enumerate}
 \item We observe that with increase in the number of ranks, the runtime goes down for both \mpi and \pp,with the lowest for 8192 MPI ranks. This is partly because of two reasons :
 \begin{enumerate}
 \item With increase in number of ranks, our 1 billion long array is fragmented up in 8192 small subarrays in each rank. As the size of the array in each individual rank decreases it becomes possible to fit more and more of the array in the cache, resulting in very fast operation.
 
-\item With increase in number of the MPI ranks participating, the array gets divided into smaller pieces and each rank has to compute only a fraction of the task now. As a result the computation time per rank decreases, resulting in overall decreasing computation time.
+\item With increase in number of the MPI ranks participating, the array gets divided into smaller pieces and each rank has to compute only a fraction of the task now. As a result the computation time per rank decreases, resulting in overall decreasing computation time. The reduction or collective operation time eventually trumps the computation time required for sum and hence, the trend is largely dominated by the former with increase of ranks.
 \end{enumerate}
 Now the highest we go is for 8192 ranks which is 128 nodes which is still within one rank. So the communication overhead over computation overhead is minimum, we are probably in a single midleplane in a single rack.
 
