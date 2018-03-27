@@ -5,7 +5,7 @@
  *                to sum a 1 billion long array of numbers
  *  
  *   Anirban Das (dasa2@rpi.edu)
- *   03/23/2018
+ *   03/27/2018
  *   Ans: 576460751766552576
  *   timings_p2p = [0.420027,0.210152,0.120292,0.052671,0.030676,0.020943,0.010322,0.007179]
 *    timings_mpi = [0.419725,0.209963,0.118705,0.052526,0.029684,0.020122,0.003101,0.000735]
@@ -62,7 +62,7 @@ int main(int argc , char **argv) {
     unsigned long long start_cycles;
     unsigned long long end_cycles;
 
-    unsigned long long chunksize;
+    unsigned long long chunksize;                   //size of the local array
     chunksize = ARRSIZE/ntasks;
     unsigned long long globalSum_p2p, globalSum_MPI;
 
@@ -74,11 +74,12 @@ int main(int argc , char **argv) {
       exit(-1);
     }
 
+    //========================================================================
     // prepare the local array for the current MPI rank
     prepareArray(chunksize, localArray);
 
-
-    //---------------------  Point to point MPI_P2P_reduce  ------------------------------------
+    //========================================================================
+    //---------------------  Point to point MPI_P2P_reduce  ------------------
     if(taskid==0)
         start_cycles= GetTimeBase();
 
@@ -87,14 +88,13 @@ int main(int argc , char **argv) {
     if(taskid==0){
             end_cycles = GetTimeBase();
             time_in_secs = ((double)(end_cycles - start_cycles))/processor_frequency;
-            //printf("P2P_results-%llu::no_of_ranks-%d::time_in_secs-%f\n", globalSum_p2p, ntasks, time_in_secs);
             printf("%llu %1.10f\n", globalSum_p2p, time_in_secs);
    		
     }
 
 
-
-   	// ---------------------- Standard MPI_Reduce----------------------------------------------
+    //========================================================================
+   	// ---------------------- Standard MPI_Reduce-----------------------------
     if(taskid==0)
         start_cycles= GetTimeBase();
 
@@ -103,12 +103,9 @@ int main(int argc , char **argv) {
     if(taskid==0){
             end_cycles = GetTimeBase();
             time_in_secs = ((double)(end_cycles - start_cycles))/processor_frequency;
-            //printf("MPI_results-%llu::no_of_ranks-%d::time_in_secs-%f\n", globalSum_MPI, ntasks, time_in_secs);
             printf("%llu %1.10f\n", globalSum_MPI, time_in_secs);
 
    	}
-
-
 
 
     MPI_Finalize();
@@ -156,6 +153,7 @@ int MPI_P2P_reduce(const void *sendbuf, void *recvbuf, int count, MPI_Datatype d
     	stride = 2; noSteps = log(ntasks)/log(2);
     	
 
+
     	// this hardcode is due to the weird log(x)/log(2) bug
     	// in Blue Gene giving result 1 less then it should
     	if(ntasks == 4096){
@@ -165,13 +163,14 @@ int MPI_P2P_reduce(const void *sendbuf, void *recvbuf, int count, MPI_Datatype d
     		noSteps = 13;
     	}
 
-    	//part where the point to point communication is done using binary tree structure
+    //========================================================================
+    //part where the point to point communication is done using binary tree structure
         while(noSteps){
 	        if (taskid ==0)
 	            m++;
 	        if (taskid%stride ==0){
 	            ierr=MPI_Irecv(&otherSum, count ,MPI_UNSIGNED_LONG_LONG,
-	                   taskid+stride/2 ,MPI_ANY_TAG,MPI_COMM_WORLD,&recv_request); //receive from higher stride thing
+	                   taskid+stride/2 ,MPI_ANY_TAG,MPI_COMM_WORLD,&recv_request); //receive from higher stride rank
 	            ierr=MPI_Wait(&recv_request,&status);
 	            toSendSum = toSendSum + otherSum;
 	        }
