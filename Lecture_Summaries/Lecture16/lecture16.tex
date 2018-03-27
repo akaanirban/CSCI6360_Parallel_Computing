@@ -1,0 +1,70 @@
+\documentclass[a4paper,12 pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper, margin=0.8in}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\setlist{  
+  listparindent=\parindent,
+  parsep=0pt,
+}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage[normalem]{ulem}
+\usepackage{natbib}
+\usepackage{listings}
+
+
+\title{\vspace{-2.0cm}CSCI 6360: Parallel Computing Lecture Summary - 16}
+\author{Anirban Das (dasa2@rpi.edu) }
+\date{March 23, 2018}
+
+
+\begin{document}
+\maketitle
+
+\paragraph{Summary on mutex part of `Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors' paper:\\\\}
+
+In this paper the authors shows new methods to improve upon the usual busy wait techniques used for achieving mutual exclusion or barrier synchronization . They show that it is possible to implement busy wait synchronization algorithms which pose no memory or interconnect contention in shared memory parallel system. This can be directly related towards achievement of mutual exclusion in a multi threaded environment. 
+
+A busy wait schedule is when processes poll the state of a shared variable to determine when to proceed and can be of two types: spin locks and barriers. The authors study several types of spin locks from existing literature and puts forward their own implementation.
+
+\texttt{test\_and\_Set} lock requires a polling loop to access a boolean flag which indicates whether the lock is held or not, a processor acquires a lock by changing the flag state from false to true. For larger number of processors, this results in contention for the flag at the same time, which may be attenuated by adding a random delay/back-off in polling for every processor. \texttt{Ticket lock} can reduce the number of \texttt{fetch\_and\_$\phi$} operations  where a processor acquires and releases the lock by using \texttt{fetch\_ and\_increment} operation and a request and release counter. However ti still caused memory and network contention because it keeps on polling a common location and can be somewhat fixed by using a random polling delay proportional to the \textit{minimum} time a processor can hold a lock.
+
+To achieve constant bounds on network transactions, array based queuing locks can be used where the idea is that each processor spins on a different location in a different cache line by using atomic operations to get the location of where to spin. And finally the authors put forward their own MCS lock, which guarantees FIFO ordering of lock acquisition. Each processor spins on its locally accessible flag, and each processor hold address of record for process behind that will execute after lock release, almost like a linked list.  
+
+Performance analysis on the BBN Butterfly 1 machine with empty critical sections reveals that \texttt{text\_and\_set} and ticket achieves poorest scaling. Using exponential back-off for \texttt{test\_and\_set}, proportional for ticket lock vastly improves the raw performance. However, MCS scaling behavior outperforms all the others. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
