@@ -19,25 +19,52 @@
 \usepackage{listings}
 
 
-\title{\vspace{-2.0cm}CSCI 6360: Parallel Computing Lecture Summary - 16}
+\title{\vspace{-2.0cm}CSCI 6360: Parallel Computing Lecture Summary - 17}
 \author{Anirban Das (dasa2@rpi.edu) }
-\date{March 23, 2018}
+\date{March 27, 2018}
 
 
 \begin{document}
 \maketitle
 
-\paragraph{Summary on mutex part of `Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors' paper:\\\\}
+\paragraph{Summary on Lecture 17\\\\}
 
-In this paper the authors shows new methods to improve upon the usual busy wait techniques used for achieving mutual exclusion or barrier synchronization . They show that it is possible to implement busy wait synchronization algorithms which pose no memory or interconnect contention in shared memory parallel system. This can be directly related towards achievement of mutual exclusion in a multi threaded environment. 
+Ring is bad. All memory is cache. Figure 1.YOu could go across rings to the neighbours. Ring of ring architecture and can have a max capacity of 32 gb or ram. Describe the architecture of the ring.
 
-A busy wait schedule is when processes poll the state of a shared variable to determine when to proceed and can be of two types: spin locks and barriers. The authors study several types of spin locks from existing literature and puts forward their own implementation.
+The other part is the way memory is analysed. All memory was cached so on your 64 bit 25mhz sparc like processor, if the amount of data shared to you is 32mb, then like all caches you evict old stuff and use new keep new stuff like LRU fashio. Here in this architecture where do we spill to? We spill data to the neighbour. Shouldnt have memory sharing more than the size of the cache. Need to create processor specific pool of memory. 
 
-\texttt{test\_and\_Set} lock requires a polling loop to access a boolean flag which indicates whether the lock is held or not, a processor acquires a lock by changing the flag state from false to true. For larger number of processors, this results in contention for the flag at the same time, which may be attenuated by adding a random delay/back-off in polling for every processor. \texttt{Ticket lock} can reduce the number of \texttt{fetch\_and\_$\phi$} operations  where a processor acquires and releases the lock by using \texttt{fetch\_ and\_increment} operation and a request and release counter. However ti still caused memory and network contention because it keeps on polling a common location and can be somewhat fixed by using a random polling delay proportional to the \textit{minimum} time a processor can hold a lock.
+Performance. whats the effect of placement of processing threads. The workload performing steps (7 of them). They are trying to get rid of interrupts that might cause problems. Figure 2. two if the rings in this case.
 
-To achieve constant bounds on network transactions, array based queuing locks can be used where the idea is that each processor spins on a different location in a different cache line by using atomic operations to get the location of where to spin. And finally the authors put forward their own MCS lock, which guarantees FIFO ordering of lock acquisition. Each processor spins on its locally accessible flag, and each processor hold address of record for process behind that will execute after lock release, almost like a linked list.  
+Fig 3. They are looking at ring a and b. and Fig 3. when owners are at cell no. 31, then they see quicker response time. Turned out one problem is request goes around on one way but the response is on th other way. SO upto 31 the performance is high, then you go to the second ring and the access time is quicker. While the request went around the data request is much quicker and doesnot haveto move all way aroun the ring????
 
-Performance analysis on the BBN Butterfly 1 machine with empty critical sections reveals that \texttt{text\_and\_set} and ticket achieves poorest scaling. Using exponential back-off for \texttt{test\_and\_set}, proportional for ticket lock vastly improves the raw performance. However, MCS scaling behavior outperforms all the others. 
+Interesting thing is reader writers and suites no body ever done anything which says heres the linpack or any mordern benchmark but only did generic reader writer performance. No real piece of software running , drawback.
+
+
+
+Intel phi, ALSO RING. Whats the difference? slight change in memory some generations etc but not much more. Old ring comeback on a single chip.L1 is similar to first level cache and shared L2. Thread style programming model. Two modes you can run the phi in native execution mode with its own OS etc and offload mode when you can offload parts of the application on to the card itself. Sort of like a mesh like network wih then memory banks closest to the procesors with the BCS infiniband type of node. 
+
+First question is what sort of memory bandwidth we will get . Is it any thread accessing any memory or is it balanced??????? Figure 3. They have real benchmarks. Parallel for overheadaa dns what are th cost%sub.
+
+
+BCS, RIng architectures. 
+
+Intel Knights landing in the new cray processors and this can work as a host processor. Memory bw is lower and if you have an application that uses a terabyte of ram then you cant use this need a xeon. Tiled mesh or 2d torus processor. Optics directly on the chip, silicon photonics
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
